@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import os
 import re
+import base64
 from resume_parser import get_resume_data, DOC_URL
 
 def render_markdown_links(text):
@@ -12,6 +13,15 @@ def render_markdown_links(text):
         r'<a href="\2" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">\1</a>',
         text
     )
+
+def get_image_base64(path):
+    if os.path.exists(path):
+        try:
+            with open(path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except Exception as e:
+            pass
+    return None
 
 def load_publications():
     pub_file = "publications.json"
@@ -397,26 +407,53 @@ if not data:
 
 # --- SIDEBAR CONTENT ---
 with st.sidebar:
-    # A elegant CSS initials badge
-    st.markdown("""
-    <div style="display: flex; justify-content: center; margin-bottom: 15px;">
-        <div style="
-            background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
-            color: white;
-            font-size: 2.2rem;
-            font-weight: 700;
-            width: 75px;
-            height: 75px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-        ">
-            SM
+    img_base64 = get_image_base64("coat_picture1.jpg")
+    if img_base64:
+        st.markdown(f"""
+        <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+            <div style="
+                background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+                padding: 3px;
+                border-radius: 24px;
+                box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.3s ease;
+            " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                <img src="data:image/jpeg;base64,{img_base64}" style="
+                    width: 140px;
+                    height: 140px;
+                    border-radius: 22px;
+                    object-fit: cover;
+                    object-position: center 0%;
+                    background-color: white;
+                    display: block;
+                " />
+            </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+    else:
+        # Fallback to elegant CSS initials badge if image not found
+        st.markdown("""
+        <div style="display: flex; justify-content: center; margin-bottom: 15px;">
+            <div style="
+                background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+                color: white;
+                font-size: 2.2rem;
+                font-weight: 700;
+                width: 75px;
+                height: 75px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            ">
+                SM
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown(f"<h3 style='text-align: center; margin-bottom: 0px;'>{data['name']}</h3>", unsafe_allow_html=True)
     st.markdown(f"<p style='text-align: center; color: gray; font-size: 0.9rem; margin-top: 2px;'>{data['contact'].get('title', '')}</p>", unsafe_allow_html=True)
