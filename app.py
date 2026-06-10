@@ -471,6 +471,11 @@ with st.sidebar:
     if contact.get("linkedin"):
         st.markdown(f"🔗 **LinkedIn:** [Profile]({contact['linkedin']})")
         
+    st.markdown("---")
+    if st.button("🔄 Sync with Google Doc", use_container_width=True):
+        st.session_state.force_refresh = True
+        fetch_data.clear()
+        st.rerun()
 
 # --- MAIN CONTENT ---
 
@@ -490,7 +495,7 @@ with col2:
     """, unsafe_allow_html=True)
 
 # Overview tab logic
-tabs = st.tabs(["💼 Experience", "🛠️ Skills", "🚀 Projects & Education", "🏅 Certifications & Summary", "📚 Publications"])
+tabs = st.tabs(["💼 Experience", "🛠️ Skills", "🎓 Education", "🏅 Certifications & Summary", "📚 Publications"])
 
 # --- TAB 1: EXPERIENCE ---
 with tabs[0]:
@@ -554,37 +559,29 @@ with tabs[1]:
             </div>
             """, unsafe_allow_html=True)
 
-# --- TAB 3: PROJECTS & EDUCATION ---
+# --- TAB 3: EDUCATION ---
 with tabs[2]:
-    col_proj, col_edu = st.columns([1, 1])
-    
-    with col_proj:
-        st.markdown("<div class='sec-header'>Key Projects</div>", unsafe_allow_html=True)
-        for proj in data["projects"]:
-            st.markdown(f"""
-            <div class='resume-card'>
-                <strong style="font-size: 1.1rem; color: #10b981;">🚀 {proj['name']}</strong>
-                <p style="margin-top: 10px; font-size: 0.95rem; line-height: 1.5;">{render_markdown_links(proj['description'])}</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-    with col_edu:
-        st.markdown("<div class='sec-header'>Education</div>", unsafe_allow_html=True)
-        for edu in data["education"]:
-            st.markdown(f"""
-            <div class='resume-card'>
-                <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
-                    <strong style="font-size: 1.15rem; color: #3b82f6;">🎓 {edu['institution']}</strong>
-                    <span style="font-size: 0.85rem; color: #6b7280;">📍 {edu['location']}</span>
-                </div>
-                <div style="font-weight: 500; margin-top: 6px; font-size: 0.95rem;">{edu['degree']}</div>
-            """, unsafe_allow_html=True)
-            if edu["details"]:
-                st.markdown("<ul style='margin-top: 6px; padding-left: 20px; font-size: 0.9rem;'>", unsafe_allow_html=True)
-                for detail in edu["details"]:
-                    st.markdown(f"<li>{render_markdown_links(detail)}</li>", unsafe_allow_html=True)
-                st.markdown("</ul>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<div class='sec-header'>Education</div>", unsafe_allow_html=True)
+    if data.get("education"):
+        edu_cols = st.columns(len(data["education"]))
+        for index, edu in enumerate(data["education"]):
+            with edu_cols[index]:
+                st.markdown(f"""
+                <div class='resume-card' style="height: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
+                        <strong style="font-size: 1.15rem; color: #3b82f6;">🎓 {edu['institution']}</strong>
+                        <span style="font-size: 0.85rem; color: #6b7280;">📍 {edu['location']}</span>
+                    </div>
+                    <div style="font-weight: 500; margin-top: 6px; font-size: 0.95rem;">{edu['degree']}</div>
+                """, unsafe_allow_html=True)
+                if edu["details"]:
+                    st.markdown("<ul style='margin-top: 6px; padding-left: 20px; font-size: 0.9rem;'>", unsafe_allow_html=True)
+                    for detail in edu["details"]:
+                        st.markdown(f"<li>{render_markdown_links(detail)}</li>", unsafe_allow_html=True)
+                    st.markdown("</ul>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.info("No education information available.")
 
 # --- TAB 4: CERTIFICATIONS & SUMMARY ---
 with tabs[3]:
