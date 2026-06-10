@@ -434,26 +434,6 @@ with st.sidebar:
     if contact.get("linkedin"):
         st.markdown(f"🔗 **LinkedIn:** [Profile]({contact['linkedin']})")
         
-    st.markdown("---")
-    
-    # Doc source & Controls
-    st.markdown("#### ⚙️ Data Source")
-    st.markdown(f"📄 [Google Doc Source Link]({DOC_URL})")
-    
-    if st.button("🔄 Sync Live from Google Doc", use_container_width=True):
-        st.session_state.force_refresh = True
-        st.rerun()
-        
-    # Download options
-    st.markdown("#### 📥 Download Resume")
-    json_str = json.dumps(data, indent=2)
-    st.download_button(
-        label="Download Structured JSON",
-        data=json_str,
-        file_name="shreyas_mahimkar_resume.json",
-        mime="application/json",
-        use_container_width=True
-    )
 
 # --- MAIN CONTENT ---
 
