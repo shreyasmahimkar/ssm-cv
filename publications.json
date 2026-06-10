@@ -1,0 +1,90 @@
+[
+  {
+    "title": "Analyzing Information Asymmetry in Financial Markets Using Machine Learning",
+    "authors": "Rahul Arulkumaran, Shreyas Mahimkar, Sumit Shekhar, Aayush Jain, Arpit Jain",
+    "journal": "International Journal of Progressive Research in Engineering Management and Science (IJPREMS)",
+    "year": "2021",
+    "citations": 88,
+    "doi": "10.58257/IJPREMS16",
+    "link": "https://doi.org/10.58257/IJPREMS16",
+    "summary": "Applies supervised machine learning classifiers to detect patterns of information asymmetry and potential insider trading in financial markets. By analyzing order book dynamics and transaction history, the models can identify anomalous trading behaviors, contributing to market fairness and regulatory surveillance.",
+    "type": "Journal"
+  },
+  {
+    "title": "Predicting Crime Locations Using Big Data Analytics and Map-Reduce Techniques",
+    "authors": "Shreyas Mahimkar",
+    "journal": "The International Journal of Engineering Research (TIJER)",
+    "year": "2021",
+    "citations": 82,
+    "doi": "",
+    "link": "https://www.researchgate.net/publication/387312142_Predicting_Crime_Locations_Using_Big_Data_Analytics_and_Map-Reduce_Techniques",
+    "summary": "Develops a distributed predictive modeling framework using Map-Reduce and Apache Hadoop to identify spatial-temporal crime hotspots from municipal records. Utilizes customized spatial algorithms to assist law enforcement agencies in predictive policing and optimal resource deployment.",
+    "type": "Journal"
+  },
+  {
+    "title": "Predictive Analysis of TV Program Viewership Using Random Forest Algorithms",
+    "authors": "Shreyas Mahimkar",
+    "journal": "International Journal of Research and Analytical Reviews (IJRAR)",
+    "year": "2021",
+    "citations": 64,
+    "doi": "",
+    "link": "https://www.researchgate.net/publication/387576165_Predictive_Analysis_of_TV_Program_Viewership_Using_Random_Forest_Algorithms",
+    "summary": "Compares ensemble learning methods, specifically Random Forest, to build predictive models that forecast TV program popularity and viewer retention. The study incorporates demographic attributes and historical viewing habits to improve forecasting accuracy by 30%.",
+    "type": "Journal"
+  },
+  {
+    "title": "Analysing TV Advertising Campaign Effectiveness with Lift and Attribution Models",
+    "authors": "Shreyas Mahimkar",
+    "journal": "Journal of Emerging Technologies and Innovative Research (JETIR)",
+    "year": "2021",
+    "citations": 58,
+    "doi": "",
+    "link": "https://www.researchgate.net/publication/387183306_Analysing_TV_Advertising_Campaign_Effectiveness_with_Lift_and_Attribution_Models",
+    "summary": "Formulates multi-touch attribution and lift estimation algorithms to evaluate the true impact of TV advertising campaigns by linking TV ad exposure to downstream conversion events, resolving local sampling constraints and optimizing large-scale ad spend.",
+    "type": "Journal"
+  },
+  {
+    "title": "Targeting TV Viewers More Effectively Using K-Means Clustering",
+    "authors": "Shreyas Mahimkar, Arpit Jain, Om Goel",
+    "journal": "International Journal of Innovative Research in Technology (IJIRT)",
+    "year": "2022",
+    "citations": 51,
+    "doi": "",
+    "link": "https://www.researchgate.net/publication/387312528_Targeting_TV_Viewers_More_Effectively_Using_K-_Means_Clustering",
+    "summary": "Details an audience segmentation methodology using unsupervised K-Means clustering on TV viewership behavior. Groups viewers into high-affinity cohorts to assist advertisers in increasing ad-targeting precision by 45%.",
+    "type": "Journal"
+  },
+  {
+    "title": "Enhancing TV Audience Rating Predictions Through Linear Regression Models",
+    "authors": "Shreyas Mahimkar",
+    "journal": "The International Journal of Engineering Research (TIJER)",
+    "year": "2023",
+    "citations": 38,
+    "doi": "",
+    "link": "https://www.researchgate.net/publication/387185257_Enhancing_TV_Audience_Rating_Predictions_Through_Linear_Regression_Models",
+    "summary": "Proposes a linear regression framework optimized with feature engineering to predict TV show audience ratings based on genre, air time, and historical performance. Focuses on key predictive signals to enhance forecast reliability for media networks.",
+    "type": "Journal"
+  },
+  {
+    "title": "Extracting Insights from TV Viewership Data with Spark and Scala",
+    "authors": "Shreyas Mahimkar, Kumud Kumar Agrawal, Shubham Jain",
+    "journal": "International Journal of Advanced Research and Interdisciplinary Scientific Endeavours (IJARISE)",
+    "year": "2024",
+    "citations": 24,
+    "doi": "10.61359/11.2206-2413",
+    "link": "https://doi.org/10.61359/11.2206-2413",
+    "summary": "Introduces a scalable data processing pipeline using Apache Spark and Scala to parse, process, and analyze massive TV viewership logs. The parallel framework processes over 100 million daily records, driving computational efficiency improvements of 40%.",
+    "type": "Journal"
+  },
+  {
+    "title": "Utilizing Machine Learning for Predictive Modelling of TV Viewership Trends",
+    "authors": "Shreyas Mahimkar",
+    "journal": "International Journal of Creative Research Thoughts (IJCRT)",
+    "year": "2022",
+    "citations": 16,
+    "doi": "",
+    "link": "https://www.researchgate.net/publication/387576341_Utilizing_Machine_Learning_for_Predictive_Modelling_of_TV_Viewership_Trends",
+    "summary": "Applies machine learning classifiers to predict long-term TV viewership trends using demographic profiling and behavioral data. Focuses on temporal dependencies and changes in content consumer preferences.",
+    "type": "Journal"
+  }
+]
