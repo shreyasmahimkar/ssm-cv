@@ -95,7 +95,7 @@ def load_publications():
             "year": "2024",
             "citations": 24,
             "doi": "10.61359/11.2206-2413",
-            "link": "https://doi.org/10.61359/11.2206-2413",
+            "link": "https://rjpn.org/ijnti/papers/IJNTI2401006.pdf",
             "summary": "Introduces a scalable data processing pipeline using Apache Spark and Scala to parse, process, and analyze massive TV viewership logs. The parallel framework processes over 100 million daily records, driving computational efficiency improvements of 40%.",
             "type": "Journal"
         },
