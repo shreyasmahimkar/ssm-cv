@@ -2,20 +2,113 @@ import re
 import requests
 import json
 import os
+from html.parser import HTMLParser
+from urllib.parse import urlparse, parse_qs
 
-DOC_URL = "https://docs.google.com/document/d/1bbPRlF2jy3Jkh94Vuw2scdsqQUB51RF8pINoiZ3GUv8/export?format=txt"
+DOC_URL = "https://docs.google.com/document/d/1bbPRlF2jy3Jkh94Vuw2scdsqQUB51RF8pINoiZ3GUv8/export?format=html"
 FALLBACK_FILE = "resume_fallback.json"
 
+class GoogleDocHTMLParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.output = []
+        self.current_line = []
+        self.in_body = False
+        self.in_link = False
+        self.link_href = ""
+        self.link_text = ""
+        self.list_nesting = 0
+        
+    def handle_starttag(self, tag, attrs):
+        if tag == 'body':
+            self.in_body = True
+            return
+        if not self.in_body:
+            return
+            
+        if tag in ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li']:
+            self.flush_line()
+            if tag == 'li':
+                self.current_line.append("* ")
+        elif tag in ['ul', 'ol']:
+            self.list_nesting += 1
+        elif tag == 'hr':
+            self.flush_line()
+            self.output.append("________________")
+        elif tag == 'a':
+            self.in_link = True
+            self.link_text = ""
+            attrs_dict = dict(attrs)
+            href = attrs_dict.get('href', '')
+            if "google.com/url?q=" in href:
+                parsed_url = urlparse(href)
+                q_params = parse_qs(parsed_url.query)
+                if 'q' in q_params:
+                    href = q_params['q'][0]
+            self.link_href = href
+            
+    def handle_endtag(self, tag):
+        if tag == 'body':
+            self.in_body = False
+            self.flush_line()
+            return
+        if not self.in_body:
+            return
+            
+        if tag in ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li']:
+            self.flush_line()
+        elif tag in ['ul', 'ol']:
+            self.list_nesting = max(0, self.list_nesting - 1)
+        elif tag == 'a':
+            self.in_link = False
+            cleaned_text = self.link_text.strip()
+            if cleaned_text and self.link_href:
+                self.current_line.append(f"[{cleaned_text}]({self.link_href})")
+            elif cleaned_text:
+                self.current_line.append(cleaned_text)
+            self.link_href = ""
+            self.link_text = ""
+            
+    def handle_data(self, data):
+        if not self.in_body:
+            return
+        if self.in_link:
+            self.link_text += data
+        else:
+            self.current_line.append(data)
+            
+    def flush_line(self):
+        if self.current_line:
+            line_str = "".join(self.current_line).strip()
+            if line_str:
+                self.output.append(line_str)
+            self.current_line = []
+            
+    def get_markdown(self):
+        self.flush_line()
+        return "\n".join(self.output)
+
 def fetch_resume_raw(url=DOC_URL):
-    """Fetches raw text of resume from Google Doc export link."""
+    """Fetches raw HTML and converts it to Markdown representation."""
     try:
+        # If url doesn't specify format, make sure it exports format=html
+        if "export?format=" not in url:
+            if "edit" in url:
+                # Replace edit with export
+                url = url.split("/edit")[0] + "/export?format=html"
+            else:
+                url = url.rstrip("/") + "/export?format=html"
+        elif "format=txt" in url:
+            url = url.replace("format=txt", "format=html")
+            
         response = requests.get(url, timeout=10)
         response.raise_for_status()
-        # Decode and clean BOM if present
-        text = response.text.replace('\ufeff', '').replace('\r\n', '\n')
-        return text
+        
+        parser = GoogleDocHTMLParser()
+        parser.feed(response.text)
+        return parser.get_markdown()
     except Exception as e:
-        print(f"Error fetching resume: {e}")
+        print(f"Error fetching/parsing resume HTML: {e}")
         return None
 
 def parse_resume_text(text):
@@ -56,7 +149,8 @@ def parse_resume_text(text):
             if "@" in p:
                 resume["contact"]["email"] = p
             elif "linkedin.com" in p or "http" in p:
-                resume["contact"]["linkedin"] = p
+                m = re.search(r'\[.*?\]\((.*?)\)', p)
+                resume["contact"]["linkedin"] = m.group(1) if m else p
             elif re.search(r'\+?\d[\d\s-]{8,}', p):
                 resume["contact"]["phone"] = p
             else:

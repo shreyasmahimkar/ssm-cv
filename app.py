@@ -1,7 +1,17 @@
 import streamlit as st
 import json
 import os
+import re
 from resume_parser import get_resume_data, DOC_URL
+
+def render_markdown_links(text):
+    if not text:
+        return ""
+    return re.sub(
+        r'\[(.*?)\]\((.*?)\)',
+        r'<a href="\2" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">\1</a>',
+        text
+    )
 
 # Set page configurations
 st.set_page_config(
@@ -16,8 +26,8 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-/* Apply font to all elements */
-html, body, [class*="css"] {
+/* Apply font and standard colors from Streamlit theme */
+html, body, [class*="css"], .stMarkdown {
     font-family: 'Outfit', sans-serif;
 }
 
@@ -34,7 +44,8 @@ html, body, [class*="css"] {
 /* Job title styling */
 .profile-title {
     font-size: 1.35rem;
-    color: #4b5563;
+    color: var(--text-color);
+    opacity: 0.8;
     font-weight: 500;
     margin-top: 2px;
     margin-bottom: 15px;
@@ -44,17 +55,18 @@ html, body, [class*="css"] {
 .sec-header {
     font-size: 1.6rem;
     font-weight: 600;
-    color: #1e3a8a;
+    color: #3b82f6;
     border-bottom: 2px solid #3b82f6;
     padding-bottom: 6px;
     margin-top: 25px;
     margin-bottom: 15px;
 }
 
-/* Resume experience/education cards */
+/* Resume experience/education cards adapting to theme background */
 .resume-card {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(128, 128, 128, 0.15);
+    background-color: var(--secondary-background-color);
+    color: var(--text-color);
+    border: 1px solid rgba(128, 128, 128, 0.2);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 15px;
@@ -63,15 +75,15 @@ html, body, [class*="css"] {
 .resume-card:hover {
     transform: translateY(-2px);
     border-color: rgba(59, 130, 246, 0.4);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 /* Badge for skills */
 .skill-tag {
     display: inline-block;
-    background: rgba(59, 130, 246, 0.08);
-    border: 1px solid rgba(59, 130, 246, 0.18);
-    color: #2563eb;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
     padding: 5px 12px;
     border-radius: 16px;
     margin: 4px;
@@ -82,7 +94,8 @@ html, body, [class*="css"] {
 /* Timeline elements */
 .job-meta {
     font-size: 0.9rem;
-    color: #6b7280;
+    color: var(--text-color);
+    opacity: 0.7;
     font-weight: 400;
     margin-bottom: 8px;
 }
@@ -90,32 +103,20 @@ html, body, [class*="css"] {
 .job-company {
     font-size: 1.15rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--text-color);
 }
 
-/* Adjustments for dark theme automatically */
-@media (prefers-color-scheme: dark) {
-    .profile-title {
-        color: #9ca3af;
-    }
-    .sec-header {
-        color: #60a5fa;
-        border-bottom-color: #60a5fa;
-    }
-    .job-company {
-        color: #f9fafb;
-    }
-    .job-meta {
-        color: #9ca3af;
-    }
-    .skill-tag {
-        color: #60a5fa;
-        background: rgba(96, 165, 250, 0.12);
-        border-color: rgba(96, 165, 250, 0.25);
-    }
-    .resume-card:hover {
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    }
+.role-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3b82f6;
+}
+
+.role-dates {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.65;
+    font-weight: 500;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -238,18 +239,18 @@ with tabs[0]:
                 st.markdown(f"""
                 <div class='resume-card'>
                     <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
-                        <strong style="font-size: 1.1rem; color: #2563eb;">{role['title']}</strong>
-                        <span style="font-size: 0.9rem; color: #6b7280; font-weight: 500;">📅 {role['dates']}</span>
+                        <span class="role-title">{role['title']}</span>
+                        <span class="role-dates">📅 {role['dates']}</span>
                     </div>
                 """, unsafe_allow_html=True)
                 
                 if role["description"]:
-                    st.markdown(f"<p style='margin-top: 8px; font-size: 0.95rem; font-style: italic;'>{role['description']}</p>", unsafe_allow_html=True)
+                    st.markdown(f"<p style='margin-top: 8px; font-size: 0.95rem; font-style: italic;'>{render_markdown_links(role['description'])}</p>", unsafe_allow_html=True)
                 
                 if role["bullets"]:
                     st.markdown("<ul style='margin-top: 8px; padding-left: 20px; font-size: 0.95rem;'>", unsafe_allow_html=True)
                     for bullet in role["bullets"]:
-                        st.markdown(f"<li>{bullet}</li>", unsafe_allow_html=True)
+                        st.markdown(f"<li>{render_markdown_links(bullet)}</li>", unsafe_allow_html=True)
                     st.markdown("</ul>", unsafe_allow_html=True)
                 
                 st.markdown("</div>", unsafe_allow_html=True)
@@ -292,7 +293,7 @@ with tabs[2]:
             st.markdown(f"""
             <div class='resume-card'>
                 <strong style="font-size: 1.1rem; color: #10b981;">🚀 {proj['name']}</strong>
-                <p style="margin-top: 10px; font-size: 0.95rem; line-height: 1.5;">{proj['description']}</p>
+                <p style="margin-top: 10px; font-size: 0.95rem; line-height: 1.5;">{render_markdown_links(proj['description'])}</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -310,7 +311,7 @@ with tabs[2]:
             if edu["details"]:
                 st.markdown("<ul style='margin-top: 6px; padding-left: 20px; font-size: 0.9rem;'>", unsafe_allow_html=True)
                 for detail in edu["details"]:
-                    st.markdown(f"<li>{detail}</li>", unsafe_allow_html=True)
+                    st.markdown(f"<li>{render_markdown_links(detail)}</li>", unsafe_allow_html=True)
                 st.markdown("</ul>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -344,6 +345,6 @@ with tabs[3]:
             margin-bottom: 10px;
         ">
             <span style="font-size: 1.3rem; margin-right: 12px;">🏅</span>
-            <span style="font-size: 0.95rem;">{cert}</span>
+            <span style="font-size: 0.95rem;">{render_markdown_links(cert)}</span>
         </div>
         """, unsafe_allow_html=True)
