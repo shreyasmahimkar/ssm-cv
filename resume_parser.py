@@ -124,7 +124,8 @@ def parse_resume_text(text):
         "experience": [],
         "projects": [],
         "education": [],
-        "certifications": []
+        "certifications": [],
+        "publications": []
     }
     
     # 1. Parse Header
@@ -164,7 +165,8 @@ def parse_resume_text(text):
         "experience": [],
         "projects": [],
         "education": [],
-        "certifications": []
+        "certifications": [],
+        "publications": []
     }
     
     current_section = None
@@ -193,6 +195,9 @@ def parse_resume_text(text):
             continue
         elif "certifications & honors" in lower_line or "certifications" in lower_line:
             current_section = "certifications"
+            continue
+        elif "publications" in lower_line:
+            current_section = "publications"
             continue
         elif re.match(r'^_{3,}$', cleaned_line):
             # Divider line, skip or reset section if not experience
@@ -276,18 +281,39 @@ def parse_resume_text(text):
                     "title": role_title,
                     "dates": dates,
                     "description": "",
-                    "bullets": bullets
+                    "bullets": bullets,
+                    "projects": []
                 })
         else:
             if curr_job and curr_job["roles"]:
                 active_role = curr_job["roles"][-1]
+                if "projects" not in active_role:
+                    active_role["projects"] = []
+                    
                 if line.startswith("*"):
-                    active_role["bullets"].append(line.lstrip("*").strip())
-                else:
-                    if active_role["description"]:
-                        active_role["description"] += "\n" + line
+                    bullet_text = line.lstrip("*").strip()
+                    if active_role["projects"]:
+                        active_role["projects"][-1]["bullets"].append(bullet_text)
                     else:
-                        active_role["description"] = line
+                        active_role["bullets"].append(bullet_text)
+                else:
+                    # Detect if project header
+                    is_proj = False
+                    if "more information" in line.lower() or ("[" in line and "](" in line):
+                        is_proj = True
+                    elif active_role["bullets"] or active_role["projects"]:
+                        is_proj = True
+                        
+                    if is_proj:
+                        active_role["projects"].append({
+                            "title": line,
+                            "bullets": []
+                        })
+                    else:
+                        if active_role["description"]:
+                            active_role["description"] += "\n" + line
+                        else:
+                            active_role["description"] = line
                         
     if curr_job:
         exp_list.append(curr_job)
@@ -365,6 +391,15 @@ def parse_resume_text(text):
         else:
             certs_list.append(line)
     resume["certifications"] = certs_list
+
+    # 2g. Publications
+    pub_list = []
+    for line in sections.get("publications", []):
+        if line.startswith("*"):
+            pub_list.append(line.lstrip("*").strip())
+        else:
+            pub_list.append(line)
+    resume["publications"] = pub_list
 
     return resume
 

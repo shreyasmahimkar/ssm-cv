@@ -8,11 +8,15 @@ from resume_parser import get_resume_data, DOC_URL
 def render_markdown_links(text):
     if not text:
         return ""
-    return re.sub(
-        r'\[(.*?)\]\((.*?)\)',
-        r'<a href="\2" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">\1</a>',
-        text
-    )
+    
+    def replace_link(match):
+        link_text = match.group(1)
+        url = match.group(2)
+        if link_text.lower() == "more information":
+            return f'<a href="{url}" target="_blank" style="display: inline-flex; align-items: center; background-color: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-decoration: none; margin-left: 8px; transition: all 0.2s ease; vertical-align: middle;">🔗 More Information</a>'
+        return f'<a href="{url}" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: 500;">{link_text}</a>'
+        
+    return re.sub(r'\[(.*?)\]\((.*?)\)', replace_link, text)
 
 def get_image_base64(path):
     if os.path.exists(path):
@@ -520,14 +524,34 @@ with tabs[0]:
                     </div>
                 """, unsafe_allow_html=True)
                 
-                if role["description"]:
+                if role.get("description") and role["description"].strip():
                     st.markdown(f"<p style='margin-top: 8px; font-size: 0.95rem; font-style: italic;'>{render_markdown_links(role['description'])}</p>", unsafe_allow_html=True)
                 
-                if role["bullets"]:
+                # Render direct bullets if present
+                active_bullets = [b for b in role.get("bullets", []) if b.strip()]
+                if active_bullets:
                     st.markdown("<ul style='margin-top: 8px; padding-left: 20px; font-size: 0.95rem;'>", unsafe_allow_html=True)
-                    for bullet in role["bullets"]:
+                    for bullet in active_bullets:
                         st.markdown(f"<li>{render_markdown_links(bullet)}</li>", unsafe_allow_html=True)
                     st.markdown("</ul>", unsafe_allow_html=True)
+                    
+                # Render projects if present
+                if role.get("projects"):
+                    for idx, proj in enumerate(role["projects"]):
+                        border_style = "border-top: 1px solid rgba(128,128,128,0.15); padding-top: 12px; margin-top: 12px;" if idx > 0 else "margin-top: 8px;"
+                        st.markdown(f"""
+                        <div style="{border_style}">
+                            <div style="font-weight: 600; font-size: 1.05rem; color: var(--text-color); margin-bottom: 6px; display: flex; align-items: center; flex-wrap: wrap;">
+                                {render_markdown_links(proj['title'])}
+                            </div>
+                        """, unsafe_allow_html=True)
+                        if proj.get("bullets"):
+                            st.markdown("<ul style='margin-top: 5px; padding-left: 20px; font-size: 0.95rem;'>", unsafe_allow_html=True)
+                            for bullet in proj["bullets"]:
+                                if bullet.strip():
+                                    st.markdown(f"<li>{render_markdown_links(bullet)}</li>", unsafe_allow_html=True)
+                            st.markdown("</ul>", unsafe_allow_html=True)
+                        st.markdown("</div>", unsafe_allow_html=True)
                 
                 st.markdown("</div>", unsafe_allow_html=True)
 
