@@ -1,0 +1,6 @@
+# Randstad job IDs confirmed to NOT offer visa sponsorship.
+# Shreyas requires sponsorship, so randstaddigital_job_matcher.py excludes these.
+# One job id per line; text after '#' is ignored. Add new ids as you confirm them.
+
+1333303   # Manager of Data Engineering — Baltimore, MD
+1327985   # Senior Data Engineer — Cleveland, OH
