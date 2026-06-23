@@ -1,0 +1,32 @@
+# Randstad job IDs already surfaced to Shreyas (excluded from future runs).
+# One id per line; text after '#' is ignored. `--mark-seen` appends new ones here.
+
+1335762   # Machine Learning Engineer - Hybrid NYC
+1335199   # Data Engineer - Malvern, PA
+1336678   # Quantitative Analytics Specialist - Charlotte, NC
+1333995   # Quant Developer (KDB+/Python) - Jersey City, NJ
+1333880   # Enterprise Data Engineering Manager - San Diego, CA
+1335971   # Senior Data Engineer - Malvern, PA
+1336616   # Sr Data Engineer - Roanoke, TX
+1334363   # Data Engineer - New York, NY
+1335451   # Data Scientist - Minneapolis, MN
+1336521   # Card Portfolio Analytics Manager - Colorado Springs, CO
+1336361   # Quality Enablement AI Engineer - Chicago, IL
+1335808   # Network Analytics Specialists with AI - Remote US
+1333303   # Manager of Data Engineering - Baltimore, MD (also no-sponsor)
+1327985   # Senior Data Engineer - Cleveland, OH (also no-sponsor)
+1337221
+1337012
+1337460
+1335520
+1335527
+1335494
+1337445
+1337431
+1335257
+1337084
+1335856
+1335567
+1335099
+1334992
+1337433

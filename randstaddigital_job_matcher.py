@@ -435,15 +435,17 @@ def score_job(job, weights):
 # ---------------------------------------------------------------------------
 
 def run(url, top, min_score, limit, require, extra_keywords, refresh_resume, delay,
-        no_sponsor_ids=None, keep_no_sponsor=False):
+        no_sponsor_ids=None, keep_no_sponsor=False, exclude_ids=None, extra_slugs=None):
     weights = build_keyword_weights(extra_keywords, refresh_resume)
     no_sponsor_ids = no_sponsor_ids or set()
+    exclude_ids = exclude_ids or set()
 
     print(f"[*] Resolving job URLs from: {url}", file=sys.stderr)
     all_urls = resolve_job_urls(url)
     print(f"[*] Discovered {len(all_urls)} candidate URL(s).", file=sys.stderr)
 
-    candidates = prefilter_urls(all_urls)
+    slug_kws = SLUG_KEYWORDS + list(extra_slugs or [])
+    candidates = prefilter_urls(all_urls, slug_kws)
     if len(candidates) != len(all_urls):
         print(f"[*] Slug pre-filter kept {len(candidates)} relevant URL(s).", file=sys.stderr)
     candidates = candidates[:limit]
@@ -451,6 +453,7 @@ def run(url, top, min_score, limit, require, extra_keywords, refresh_resume, del
 
     results = []
     excluded = []  # (title, job_id, reason)
+    seen_skipped = 0
     seen = set()
     for i, job_url in enumerate(candidates, 1):
         try:
@@ -465,6 +468,11 @@ def run(url, top, min_score, limit, require, extra_keywords, refresh_resume, del
             if require and require.lower() not in (job["description"] + " " + job["organization"]).lower():
                 continue
             seen.add(key)
+
+            # Already surfaced in a previous run — skip silently (just count).
+            if job["job_id"] in exclude_ids:
+                seen_skipped += 1
+                continue
 
             # Sponsorship stance: confirmed blocklist wins, else best-effort text scan.
             if job["job_id"] in no_sponsor_ids:
@@ -482,6 +490,8 @@ def run(url, top, min_score, limit, require, extra_keywords, refresh_resume, del
         if delay:
             time.sleep(delay)
 
+    if seen_skipped:
+        print(f"[*] Skipped {seen_skipped} already-seen posting(s) (exclude list).", file=sys.stderr)
     if excluded:
         print(f"[*] Excluded {len(excluded)} no-sponsorship posting(s):", file=sys.stderr)
         for title, jid, src in excluded:
@@ -545,15 +555,24 @@ def main(argv=None):
                    help="File of confirmed no-sponsorship job ids to exclude (default no_sponsor_ids.txt).")
     p.add_argument("--keep-no-sponsor", action="store_true",
                    help="Do NOT filter out roles flagged as offering no visa sponsorship.")
+    p.add_argument("--exclude-file", default="seen_ids.txt",
+                   help="File of already-seen job ids to skip (default seen_ids.txt).")
+    p.add_argument("--mark-seen", action="store_true",
+                   help="Append this run's matched job ids to --exclude-file so they don't recur.")
+    p.add_argument("--extra-slugs", default=None,
+                   help="Comma-separated extra URL-slug keywords to widen the pre-filter.")
     p.add_argument("--refresh-resume", action="store_true", help="Re-fetch resume from Google Docs.")
     p.add_argument("--json", dest="json_out", default=None, help="Also write full results to this JSON file.")
     args = p.parse_args(argv)
 
     extra = [k for k in (args.keywords or "").split(",") if k.strip()]
+    extra_slugs = [s.strip().lower() for s in (args.extra_slugs or "").split(",") if s.strip()]
     no_sponsor_ids = load_no_sponsor_ids(args.no_sponsor_file)
+    exclude_ids = load_no_sponsor_ids(args.exclude_file)  # same format (id per line)
     jobs = run(args.url, args.top, args.min_score, args.limit, args.require,
                extra, args.refresh_resume, args.delay,
-               no_sponsor_ids=no_sponsor_ids, keep_no_sponsor=args.keep_no_sponsor)
+               no_sponsor_ids=no_sponsor_ids, keep_no_sponsor=args.keep_no_sponsor,
+               exclude_ids=exclude_ids, extra_slugs=extra_slugs)
     if args.markdown:
         print_markdown(jobs)
     else:
@@ -563,6 +582,13 @@ def main(argv=None):
         with open(args.json_out, "w") as f:
             json.dump(jobs, f, indent=2)
         print(f"[*] Wrote {len(jobs)} results to {args.json_out}", file=sys.stderr)
+
+    if args.mark_seen and jobs:
+        new_ids = [j["job_id"] for j in jobs if j["job_id"]]
+        with open(args.exclude_file, "a") as f:
+            for jid in new_ids:
+                f.write(f"{jid}\n")
+        print(f"[*] Marked {len(new_ids)} job id(s) as seen in {args.exclude_file}", file=sys.stderr)
 
     return 0
 
